@@ -54,10 +54,14 @@ namespace ArtBarrieOnline.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Pic,Date_Added,CategoryId,OrganizationId")] Art art)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Date_Added,CategoryId,OrganizationId")] Art art, IFormFile Pic)
         {
             if (ModelState.IsValid)
             {
+                if (Pic != null)
+                {
+                    art.Pic = UpPic(Pic);
+                }
                 _context.Add(art);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -86,7 +90,7 @@ namespace ArtBarrieOnline.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Pic,Date_Added,CategoryId,OrganizationId")] Art art)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Date_Added,CategoryId,OrganizationId")] Art art, IFormFile Pic)
         {
             if (id != art.Id)
             {
@@ -95,6 +99,10 @@ namespace ArtBarrieOnline.Controllers
 
             if (ModelState.IsValid)
             {
+                if(Pic!= null)
+                {
+                    art.Pic = UpPic(Pic);
+                }
                 try
                 {
                     _context.Update(art);
@@ -156,6 +164,23 @@ namespace ArtBarrieOnline.Controllers
         private bool ArtExists(int id)
         {
           return _context.Art.Any(e => e.Id == id);
+        }
+        //for pictures
+        //referenc is your week 5 class video 2/3
+        private static string UpPic(IFormFile Pic)
+        {
+
+            
+
+            var file_name = Guid.NewGuid().ToString();
+
+            var up_path = Directory.GetCurrentDirectory() + "\\wwwroot\\img\\Arts\\" + file_name;
+
+            using (var strm = new FileStream(up_path, FileMode.Create))
+            {
+                Pic.CopyTo(strm);
+            }
+            return file_name;
         }
     }
 }
